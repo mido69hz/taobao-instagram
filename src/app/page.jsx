@@ -1,13 +1,35 @@
+"use client";
+import { redirect } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
+import { UserContext } from "./contexts/user-context";
+import axios from "axios";
 
+import { PostCard } from "./common/PostCard";
 
 export default function Home() {
-  return (
-   <div>
-    <div className="w-[935px] h-[939px]">
-      <div className="w-[350px]">`` 
+  const { user } = useContext(UserContext);
 
-      </div>
-    </div>
-   </div>
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    axios.get("http://localhost:3333/api/posts").then((res) => {
+      setPosts(res.data);
+    });
+  }, []);
+
+  if (!user) {
+    return redirect("/signin");
+  }
+
+  return (
+    <>
+      <ul className="grid grid-cols-1 gap-4">
+        {posts
+          .filter((post) => Boolean(post.mediaUrl))
+          .map((post) => (
+            <PostCard key={post._id} post={post} />
+          ))}
+      </ul>
+    </>
   );
 }
